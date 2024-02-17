@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useHead({
   titleTemplate: (titleChunk) => {
-    return titleChunk ? `${titleChunk} - Nuxt CRUD` : 'Nuxt CRUD';
+    return titleChunk ? `${titleChunk} | Nuxt CRUD` : 'Nuxt CRUD';
   },
   meta: [
     { name: 'description', content: 'My amazing site.' }
