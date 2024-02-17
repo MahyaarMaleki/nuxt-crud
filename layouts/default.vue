@@ -20,6 +20,9 @@ const hideSlider = computed(()=> {
         <v-tab :value="2" to="/contact">
           Contact
         </v-tab>
+        <v-tab :value="3" to="/students">
+          Students
+        </v-tab>
       </v-tabs>
 
     </v-app-bar>
