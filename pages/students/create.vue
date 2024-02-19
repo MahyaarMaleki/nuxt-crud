@@ -5,6 +5,8 @@ definePageMeta({
 useHead({
   title: 'Create Student'
 })
+const config = useRuntimeConfig();
+const loading = ref(false);
 const student = reactive<Student>({
   firstName: '',
   lastName: '',
@@ -12,9 +14,28 @@ const student = reactive<Student>({
   phoneNumber: '',
   course: ''
 })
-const addStudent = () => {
-  console.log(student)
-}
+
+const addStudent = async () => {
+  loading.value = true;
+  const todo = await useFetch(`${config.public.apiBaseUrl}/students`, {
+    method: 'post',
+    body: {
+      first_name: student.firstName,
+      last_name: student.lastName,
+      email: student.email,
+      phone_number: student.phoneNumber,
+      course: student.course,
+    },
+    onResponse({ request, response, options }) {
+      loading.value = false;
+      student.firstName = '';
+      student.lastName = '';
+      student.email = '';
+      student.phoneNumber = '';
+      student.course = '';
+    },
+  })
+};
 </script>
 
 <template>
@@ -24,7 +45,7 @@ const addStudent = () => {
       min-width="448"
       rounded="lg"
   >
-    <v-card-title class="text-center mb-6">New Student</v-card-title>
+    <v-card-title class="text-center text-h5 mb-6">New Student</v-card-title>
     <v-form
       @submit.prevent="addStudent"
     >
@@ -57,6 +78,7 @@ const addStudent = () => {
             variant="elevated"
             color="success"
             size="large"
+            :loading="loading"
             block
         >
           Add Student
