@@ -1,16 +1,16 @@
 <script setup lang="ts">
 const props = defineProps<{
   httpMethod: 'POST' | 'PUT';
-  studentId?: number;
+  studentId?: number | string;
 }>()
 
 const config = useRuntimeConfig();
 const apiBaseUrl = config.public.apiBaseUrl;
 const isForCreating = computed(() => props.httpMethod === 'POST');
-const isLoading = ref(false);
+const isLoading = ref(false)
 
 const student: Student = reactive({
-  id: props.studentId ? props.studentId : 0,
+  id: 0,
   firstName: '',
   lastName: '',
   email: '',
@@ -22,13 +22,17 @@ const rules = {
   counter: (value: string) => value.length <= 100 || 'Max 100 characters',
   email: (value: string) => {
     const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    return pattern.test(value) || 'Invalid e-mail.'
+    return pattern.test(value) || (!isForCreating.value && value.length === 0) || 'Invalid e-mail.'
   },
 }
 
 onBeforeMount(async () => {
-  if(!isForCreating) {
-    const { data: fetchedStudent } = await useFetch<Student>(`${apiBaseUrl}/students/${props.studentId}`);
+  if(!isForCreating.value) {
+    const { data: fetchedStudent } = await useFetch<Student>(`${apiBaseUrl}/students/${props.studentId}`, {
+      onResponse(response) {
+
+      }
+    });
     if(fetchedStudent.value) {
       student.firstName = fetchedStudent.value.firstName;
       student.lastName = fetchedStudent.value.lastName;
@@ -41,7 +45,7 @@ onBeforeMount(async () => {
 
 const submitForm = async () => {
   isLoading.value = true;
-  const requestUrl = isForCreating ? `${apiBaseUrl}/students` : `${apiBaseUrl}/students/${props.studentId}`;
+  const requestUrl = isForCreating.value ? `${apiBaseUrl}/students` : `${apiBaseUrl}/students/${props.studentId}`;
   await $fetch(requestUrl, {
     method: props.httpMethod,
     body: {
@@ -53,7 +57,7 @@ const submitForm = async () => {
     },
     onResponse({ request, response, options }) {
       isLoading.value = false;
-      if(isForCreating && response.ok) {
+      if(isForCreating.value && response.ok) {
         student.firstName = '';
         student.lastName = '';
         student.email = '';
@@ -61,6 +65,9 @@ const submitForm = async () => {
         student.course = '';
       }
     },
+    onResponseError() {
+      isLoading.value = false;
+    }
   })
 };
 </script>
@@ -113,7 +120,7 @@ const submitForm = async () => {
           class="mb-2"
           density="compact"
           variant="outlined"
-          v-if="isForCreating" :rules="[rules.required]"
+          :rules="isForCreating ? [rules.required] : [() => true]"
           clearable
       ></v-text-field>
       <v-text-field
@@ -122,7 +129,7 @@ const submitForm = async () => {
           class="mb-2"
           density="compact"
           variant="outlined"
-          v-if="isForCreating" :rules="[rules.required]"
+          :rules="isForCreating ? [rules.required] : [() => true]"
           clearable
       ></v-text-field>
       <v-card-actions>

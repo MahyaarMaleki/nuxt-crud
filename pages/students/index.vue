@@ -11,9 +11,9 @@ const config = useRuntimeConfig();
 const apiBaseUrl = config.public.apiBaseUrl;
 
 const students = ref<Student[]>();
+const { data, error, pending, refresh} = await useLazyFetch<Student[]>(`${apiBaseUrl}/students`);
+students.value = data.value!
 
-const { data, error, pending, refresh } = await useLazyFetch<Student[]>(`${apiBaseUrl}/students`);
-students.value = data.value!;
 </script>
 
 <template>
@@ -67,6 +67,7 @@ students.value = data.value!;
                 <td>{{ student.course }}</td>
                 <td>
                   <v-btn
+                      :to="`/students/${student.id}`"
                       class="me-4"
                       density="comfortable"
                       color="info"
