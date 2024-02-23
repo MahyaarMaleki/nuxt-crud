@@ -10,9 +10,21 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const apiBaseUrl = config.public.apiBaseUrl;
 
-const students = ref<Student[]>();
+const deleteInProgress = ref(false);
+
 const { data, error, pending, refresh} = await useLazyFetch<Student[]>(`${apiBaseUrl}/students`);
-students.value = data.value!
+const students = computed<Student[]>(() => data.value!);
+
+const deleteStudent = async (studentId: number | string) => {
+  deleteInProgress.value = true;
+  await $fetch(`${apiBaseUrl}/students/${studentId}`, {
+    method: 'DELETE',
+    onResponse() {
+      refresh();
+      deleteInProgress.value = false;
+    }
+  })
+}
 
 </script>
 
@@ -74,9 +86,11 @@ students.value = data.value!
                       min-width="90"
                   >edit</v-btn>
                   <v-btn
+                      @click.stop="deleteStudent(student.id)"
                       min-width="90"
                       density="comfortable"
                       color="error"
+                      :loading="deleteInProgress"
                   >delete</v-btn>
                 </td>
               </tr>
