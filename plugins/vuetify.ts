@@ -14,6 +14,7 @@ const myCustomLightTheme: ThemeDefinition = {
     secondary: '#12b488',
     'secondary-darken-1': '#018786',
     default: '#1a1a1a',
+    hover: '#e6e6e6',
     error: '#B00020',
     info: '#2196F3',
     success: '#4CAF50',

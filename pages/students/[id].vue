@@ -2,13 +2,10 @@
 definePageMeta({
   layout: 'students'
 })
-useHead({
-  title: 'Create Student'
-})
 </script>
 
 <template>
-  <StudentForm http-method="POST" />
+
 </template>
 
 <style scoped>
